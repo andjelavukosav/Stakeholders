@@ -55,3 +55,13 @@ func (s *UserService) GetAllUsers() ([]*model.User, error) {
 	ctx := context.Background()
 	return s.UserRepo.GetAllUsers(ctx)
 }
+
+func (s *UserService) BlockUser(userID string) error {
+	ctx := context.Background()
+	return s.UserRepo.SetUserBlocked(ctx, userID, true);
+}
+
+func (s *UserService) UnblockUser(userID string) error {
+	ctx := context.Background()
+	return s.UserRepo.SetUserBlocked(ctx, userID, false);
+}

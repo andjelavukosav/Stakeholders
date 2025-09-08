@@ -6,7 +6,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var jwtKey = []byte("tajna_lozinka") // prebaci u .env u produkciji
+var JwtKey = []byte("tajna_lozinka") // prebaci u .env u produkciji
 
 type Claims struct {
 	ID       string `json:"id"`
@@ -29,5 +29,5 @@ func GenerateToken(id string, username, role string) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(jwtKey)
+	return token.SignedString(JwtKey)
 }

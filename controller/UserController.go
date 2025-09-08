@@ -21,19 +21,6 @@ func NewUserHandler(svc *service.UserService) *UserHandler {
 	}
 }
 
-// Middleware za CORS
-func enableCORS(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-	w.Header().Set("Access-Control-Allow-Credentials", "true")
-
-	if r.Method == http.MethodOptions {
-		w.WriteHeader(http.StatusNoContent)
-		return
-	}
-}
-
 // POST /users -> registracija i vraća JWT token
 func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 	enableCORS(w, r)
@@ -89,6 +76,11 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if user.IsBlocked {
+		http.Error(w, `{"error":"account blocked"}`, http.StatusForbidden)
+		return
+	}
+
 	token, err := util.GenerateToken(user.ID.String(), user.Username, user.Role)
 	if err != nil {
 		http.Error(w, `{"error":"failed to generate token"}`, http.StatusInternalServerError)
@@ -135,4 +127,44 @@ func (h *UserHandler) GetAllUsers(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json.NewEncoder(w).Encode(users)
+}
+
+// 
+func (h *UserHandler) BlockUser(w http.ResponseWriter, r *http.Request) {
+	enableCORS(w,r)
+	if r.Method == http.MethodOptions {
+		return
+	}
+
+	vars := mux.Vars(r)
+	userID := vars["id"]
+
+	err := h.UserService.BlockUser(userID)
+    if err != nil {
+        http.Error(w, `{"error":"failed to block user"}`, http.StatusInternalServerError)
+        return
+    }
+
+    w.WriteHeader(http.StatusOK)
+    w.Write([]byte(`{"message":"user blocked"}`))
+}
+
+// PATCH /users/unblock/{id} 
+func (h *UserHandler) UnblockUser(w http.ResponseWriter, r *http.Request) {
+	enableCORS(w, r)
+	if r.Method == http.MethodOptions {
+		return
+	}
+
+	vars := mux.Vars(r)
+	userID := vars["id"]
+
+	err := h.UserService.UnblockUser(userID)
+	if err != nil {
+		http.Error(w, `{"error":"failed to unblock user"}`, http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(`{"message":"user unblocked"}`))
 }

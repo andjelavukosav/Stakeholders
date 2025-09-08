@@ -10,6 +10,7 @@ type User struct {
 	Password string    `json:"password"`
 	Email    string    `json:"email"`
 	Role     string    `json:"role"` // vodič, turista, administrator
+	IsBlocked bool		`json:"isBlocked"`
 }
 
 func (user *User) BeforeCreate() {
