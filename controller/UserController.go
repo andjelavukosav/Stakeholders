@@ -1,5 +1,6 @@
 package controller
 
+/*
 import (
 	"database-example/model"
 	"database-example/service"
@@ -136,3 +137,4 @@ func (h *UserHandler) GetAllUsers(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode(users)
 }
+*/

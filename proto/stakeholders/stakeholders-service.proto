@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+option go_package = "proto/stakeholders";
+
+service StakeholdersService {
+  rpc RegisterUser(RegistrationRequest) returns (AuthenticationResponse);
+  rpc LoginUser(LoginRequest) returns (AuthenticationResponse);
+  rpc GetAllUsers (GetAllUsersRequest) returns (GetAllUsersResponse);
+
+}
+
+message RegistrationRequest {
+  string username = 1;
+  string password = 2;
+  string email    = 3;
+  string role     = 4;
+}
+
+message LoginRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message AuthenticationResponse {
+  string token = 1;
+  string message = 2;
+}
+
+message GetAllUsersRequest {}
+
+
+// Poruka koja predstavlja jednog korisnika
+message User {
+  string id       = 1;
+  string username = 2;
+  string email    = 3;
+  string role     = 4;
+}
+
+// Odgovor sa listom korisnika
+message GetAllUsersResponse {
+  repeated User users = 1;
+}
