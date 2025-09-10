@@ -236,6 +236,7 @@ type User struct {
 	Username      string                 `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
 	Email         string                 `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
 	Role          string                 `protobuf:"bytes,4,opt,name=role,proto3" json:"role,omitempty"`
+	IsBlocked     bool                   `protobuf:"varint,5,opt,name=isBlocked,proto3" json:"isBlocked,omitempty"` // dodato polje da frontend zna da li je blokiran
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -298,6 +299,13 @@ func (x *User) GetRole() string {
 	return ""
 }
 
+func (x *User) GetIsBlocked() bool {
+	if x != nil {
+		return x.IsBlocked
+	}
+	return false
+}
+
 // Odgovor sa listom korisnika
 type GetAllUsersResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -343,6 +351,184 @@ func (x *GetAllUsersResponse) GetUsers() []*User {
 	return nil
 }
 
+// Blokiranje korisnika
+type BlockUserRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"` // id korisnika koji se blokira
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BlockUserRequest) Reset() {
+	*x = BlockUserRequest{}
+	mi := &file_stakeholders_stakeholders_service_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BlockUserRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BlockUserRequest) ProtoMessage() {}
+
+func (x *BlockUserRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_stakeholders_stakeholders_service_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BlockUserRequest.ProtoReflect.Descriptor instead.
+func (*BlockUserRequest) Descriptor() ([]byte, []int) {
+	return file_stakeholders_stakeholders_service_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *BlockUserRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type BlockUserResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BlockUserResponse) Reset() {
+	*x = BlockUserResponse{}
+	mi := &file_stakeholders_stakeholders_service_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BlockUserResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BlockUserResponse) ProtoMessage() {}
+
+func (x *BlockUserResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_stakeholders_stakeholders_service_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BlockUserResponse.ProtoReflect.Descriptor instead.
+func (*BlockUserResponse) Descriptor() ([]byte, []int) {
+	return file_stakeholders_stakeholders_service_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *BlockUserResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+// Deblokiranje korisnika
+type UnblockUserRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"` // id korisnika koji se deblokira
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UnblockUserRequest) Reset() {
+	*x = UnblockUserRequest{}
+	mi := &file_stakeholders_stakeholders_service_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UnblockUserRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UnblockUserRequest) ProtoMessage() {}
+
+func (x *UnblockUserRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_stakeholders_stakeholders_service_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UnblockUserRequest.ProtoReflect.Descriptor instead.
+func (*UnblockUserRequest) Descriptor() ([]byte, []int) {
+	return file_stakeholders_stakeholders_service_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *UnblockUserRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type UnblockUserResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UnblockUserResponse) Reset() {
+	*x = UnblockUserResponse{}
+	mi := &file_stakeholders_stakeholders_service_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UnblockUserResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UnblockUserResponse) ProtoMessage() {}
+
+func (x *UnblockUserResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_stakeholders_stakeholders_service_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UnblockUserResponse.ProtoReflect.Descriptor instead.
+func (*UnblockUserResponse) Descriptor() ([]byte, []int) {
+	return file_stakeholders_stakeholders_service_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *UnblockUserResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
 var File_stakeholders_stakeholders_service_proto protoreflect.FileDescriptor
 
 const file_stakeholders_stakeholders_service_proto_rawDesc = "" +
@@ -359,18 +545,29 @@ const file_stakeholders_stakeholders_service_proto_rawDesc = "" +
 	"\x16AuthenticationResponse\x12\x14\n" +
 	"\x05token\x18\x01 \x01(\tR\x05token\x12\x18\n" +
 	"\amessage\x18\x02 \x01(\tR\amessage\"\x14\n" +
-	"\x12GetAllUsersRequest\"\\\n" +
+	"\x12GetAllUsersRequest\"z\n" +
 	"\x04User\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1a\n" +
 	"\busername\x18\x02 \x01(\tR\busername\x12\x14\n" +
 	"\x05email\x18\x03 \x01(\tR\x05email\x12\x12\n" +
-	"\x04role\x18\x04 \x01(\tR\x04role\"2\n" +
+	"\x04role\x18\x04 \x01(\tR\x04role\x12\x1c\n" +
+	"\tisBlocked\x18\x05 \x01(\bR\tisBlocked\"2\n" +
 	"\x13GetAllUsersResponse\x12\x1b\n" +
-	"\x05users\x18\x01 \x03(\v2\x05.UserR\x05users2\xc3\x01\n" +
+	"\x05users\x18\x01 \x03(\v2\x05.UserR\x05users\"\"\n" +
+	"\x10BlockUserRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"-\n" +
+	"\x11BlockUserResponse\x12\x18\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage\"$\n" +
+	"\x12UnblockUserRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"/\n" +
+	"\x13UnblockUserResponse\x12\x18\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage2\xb1\x02\n" +
 	"\x13StakeholdersService\x12=\n" +
 	"\fRegisterUser\x12\x14.RegistrationRequest\x1a\x17.AuthenticationResponse\x123\n" +
 	"\tLoginUser\x12\r.LoginRequest\x1a\x17.AuthenticationResponse\x128\n" +
-	"\vGetAllUsers\x12\x13.GetAllUsersRequest\x1a\x14.GetAllUsersResponseB\x14Z\x12proto/stakeholdersb\x06proto3"
+	"\vGetAllUsers\x12\x13.GetAllUsersRequest\x1a\x14.GetAllUsersResponse\x122\n" +
+	"\tBlockUser\x12\x11.BlockUserRequest\x1a\x12.BlockUserResponse\x128\n" +
+	"\vUnblockUser\x12\x13.UnblockUserRequest\x1a\x14.UnblockUserResponseB\x14Z\x12proto/stakeholdersb\x06proto3"
 
 var (
 	file_stakeholders_stakeholders_service_proto_rawDescOnce sync.Once
@@ -384,7 +581,7 @@ func file_stakeholders_stakeholders_service_proto_rawDescGZIP() []byte {
 	return file_stakeholders_stakeholders_service_proto_rawDescData
 }
 
-var file_stakeholders_stakeholders_service_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_stakeholders_stakeholders_service_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_stakeholders_stakeholders_service_proto_goTypes = []any{
 	(*RegistrationRequest)(nil),    // 0: RegistrationRequest
 	(*LoginRequest)(nil),           // 1: LoginRequest
@@ -392,17 +589,25 @@ var file_stakeholders_stakeholders_service_proto_goTypes = []any{
 	(*GetAllUsersRequest)(nil),     // 3: GetAllUsersRequest
 	(*User)(nil),                   // 4: User
 	(*GetAllUsersResponse)(nil),    // 5: GetAllUsersResponse
+	(*BlockUserRequest)(nil),       // 6: BlockUserRequest
+	(*BlockUserResponse)(nil),      // 7: BlockUserResponse
+	(*UnblockUserRequest)(nil),     // 8: UnblockUserRequest
+	(*UnblockUserResponse)(nil),    // 9: UnblockUserResponse
 }
 var file_stakeholders_stakeholders_service_proto_depIdxs = []int32{
 	4, // 0: GetAllUsersResponse.users:type_name -> User
 	0, // 1: StakeholdersService.RegisterUser:input_type -> RegistrationRequest
 	1, // 2: StakeholdersService.LoginUser:input_type -> LoginRequest
 	3, // 3: StakeholdersService.GetAllUsers:input_type -> GetAllUsersRequest
-	2, // 4: StakeholdersService.RegisterUser:output_type -> AuthenticationResponse
-	2, // 5: StakeholdersService.LoginUser:output_type -> AuthenticationResponse
-	5, // 6: StakeholdersService.GetAllUsers:output_type -> GetAllUsersResponse
-	4, // [4:7] is the sub-list for method output_type
-	1, // [1:4] is the sub-list for method input_type
+	6, // 4: StakeholdersService.BlockUser:input_type -> BlockUserRequest
+	8, // 5: StakeholdersService.UnblockUser:input_type -> UnblockUserRequest
+	2, // 6: StakeholdersService.RegisterUser:output_type -> AuthenticationResponse
+	2, // 7: StakeholdersService.LoginUser:output_type -> AuthenticationResponse
+	5, // 8: StakeholdersService.GetAllUsers:output_type -> GetAllUsersResponse
+	7, // 9: StakeholdersService.BlockUser:output_type -> BlockUserResponse
+	9, // 10: StakeholdersService.UnblockUser:output_type -> UnblockUserResponse
+	6, // [6:11] is the sub-list for method output_type
+	1, // [1:6] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
 	1, // [1:1] is the sub-list for extension extendee
 	0, // [0:1] is the sub-list for field type_name
@@ -419,7 +624,7 @@ func file_stakeholders_stakeholders_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_stakeholders_stakeholders_service_proto_rawDesc), len(file_stakeholders_stakeholders_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

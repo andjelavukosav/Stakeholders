@@ -53,26 +53,3 @@ func (h *UserHandler) LoginUser(ctx context.Context, req *pb.LoginRequest) (*pb.
 
 	return &pb.AuthenticationResponse{Token: token}, nil
 }
-
-func (h *UserHandler) GetAllUsers(ctx context.Context, req *pb.GetAllUsersRequest) (*pb.GetAllUsersResponse, error) {
-	// Pozivaš servis koji vraća sve korisnike
-	users, err := h.UserService.GetAllUsers()
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "failed to get users: %v", err)
-	}
-
-	// Mapiraš model.User u pb.User
-	var pbUsers []*pb.User
-	for _, u := range users {
-		pbUsers = append(pbUsers, &pb.User{
-			Id:       u.ID.String(),
-			Username: u.Username,
-			Email:    u.Email,
-			Role:     u.Role,
-		})
-	}
-
-	return &pb.GetAllUsersResponse{
-		Users: pbUsers,
-	}, nil
-}

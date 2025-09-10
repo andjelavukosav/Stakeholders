@@ -41,6 +41,10 @@ func (s *UserService) Authenticate(username, password string) (*model.User, erro
 		return nil, errors.New("invalid credentials")
 	}
 
+	if user.IsBlocked {
+		return nil, errors.New("user is blocked")
+	}
+
 	return user, nil
 }
 
@@ -54,4 +58,14 @@ func (s *UserService) GetByUsername(username string) (*model.User, error) {
 func (s *UserService) GetAllUsers() ([]*model.User, error) {
 	ctx := context.Background()
 	return s.UserRepo.GetAllUsers(ctx)
+}
+
+func (s *UserService) BlockUser(userID string) error {
+	ctx := context.Background()
+	return s.UserRepo.SetUserBlocked(ctx, userID, true)
+}
+
+func (s *UserService) UnblockUser(userID string) error {
+	ctx := context.Background()
+	return s.UserRepo.SetUserBlocked(ctx, userID, false)
 }
