@@ -170,3 +170,4 @@ func (repo *UserRepository) SetUserBlocked(ctx context.Context, userID string, b
 	return nil
 
 }
+

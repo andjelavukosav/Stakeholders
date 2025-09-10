@@ -45,9 +45,9 @@ func main() {
 	go func() {
 		logger.Println("Starting gRPC server on", addr)
 		if err := grpcServer.Serve(listener); err != nil {
-			logger.Fatal("gRPC server error:", err)
+			logger.Fatal("gRPC server error:", err)	
 		}
-	}()
+	//}()
 
 	stopCh := make(chan os.Signal, 1)
 	signal.Notify(stopCh, os.Interrupt, syscall.SIGTERM)
