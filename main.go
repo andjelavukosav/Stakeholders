@@ -2,77 +2,57 @@ package main
 
 import (
 	"context"
-	"database-example/controller"
+	"database-example/handlers"
+	stakeholderspb "database-example/proto/stakeholders"
 	"database-example/repo"
 	"database-example/service"
 	"log"
-	"net/http"
+	"net"
 	"os"
 	"os/signal"
+	"syscall"
 
-	"github.com/gorilla/handlers"
-	"github.com/gorilla/mux"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 func main() {
-	// Logger
-	logger := log.New(os.Stdout, "[user-server] ", log.LstdFlags)
+	logger := log.New(os.Stdout, "[stakeholders] ", log.LstdFlags)
 
-	// Kreiramo UserRepository
 	userRepo, err := repo.NewUserRepository(logger)
 	if err != nil {
 		logger.Fatal("Failed to create UserRepository:", err)
 	}
-	defer func() {
-		if err := userRepo.DriverClose(context.Background()); err != nil {
-			logger.Println("Error closing driver:", err)
-		}
-	}()
+	defer userRepo.DriverClose(context.Background())
 
-	// Kreiramo UserService
-	userService := &service.UserService{
-		UserRepo: userRepo,
+	userService := &service.UserService{UserRepo: userRepo}
+	userHandler := handlers.NewUserHandler(userService)
+
+	addr := os.Getenv("STAKEHOLDERS_SERVICE_ADDRESS")
+	if addr == "" {
+		addr = ":8000"
 	}
 
-	// Kreiramo handler
-	userHandler := controller.NewUserHandler(userService)
-	adminHandler := controller.NewAdminHandler(userService)
+	listener, err := net.Listen("tcp", addr)
+	if err != nil {
+		logger.Fatal("Failed to listen:", err)
+	}
 
-	// Kreiramo router i rute
-	router := mux.NewRouter()
-	router.HandleFunc("/users", userHandler.Register).Methods("POST", "OPTIONS")
-	router.HandleFunc("/users/login", userHandler.Login).Methods("POST", "OPTIONS")
-	//router.HandleFunc("/users/{username}", userHandler.Get).Methods("GET", "OPTIONS")
-	/*router.HandleFunc("/users/all", userHandler.GetAllUsers).Methods("GET", "OPTIONS")
-	router.HandleFunc("/users/{id}/block", userHandler.BlockUser).Methods("PATCH", "OPTIONS")
-	router.HandleFunc("/users/{id}/unblock", userHandler.UnblockUser).Methods("PATCH", "OPTIONS")*/
+	grpcServer := grpc.NewServer()
+	stakeholderspb.RegisterStakeholdersServiceServer(grpcServer, userHandler)
+	reflection.Register(grpcServer)
 
-	//Admin handler
-	adminRoutes := router.PathPrefix("/admin").Subrouter()
-	adminRoutes.Use(controller.JWTMiddleware) // prvo parsiranje JWT
-	adminRoutes.Use(controller.AdminOnly)     // onda provera role
-	adminRoutes.HandleFunc("/users/all", adminHandler.GetAllUsers).Methods("GET", "OPTIONS")
-	adminRoutes.HandleFunc("/users/block/{id}", adminHandler.BlockUser).Methods("PATCH", "OPTIONS")
-	adminRoutes.HandleFunc("/users/unblock/{id}", adminHandler.UnblockUser).Methods("PATCH", "OPTIONS")
-	
-	// CORS middleware
-	corsAllowed := handlers.CORS(
-		handlers.AllowedOrigins([]string{"http://localhost:4200"}),
-		handlers.AllowedMethods([]string{"GET", "POST", "PATCH", "PUT", "OPTIONS"}),
-		handlers.AllowedHeaders([]string{"Content-Type", "Authorization"}),
-	)
-
-	// Start server
-	//go func() {
-		logger.Println("Starting server on :8080")
-		if err := http.ListenAndServe(":8080", corsAllowed(router)); err != nil {
-			logger.Fatal(err)
+	go func() {
+		logger.Println("Starting gRPC server on", addr)
+		if err := grpcServer.Serve(listener); err != nil {
+			logger.Fatal("gRPC server error:", err)	
 		}
 	//}()
 
-	// Graceful shutdown
-	sigCh := make(chan os.Signal, 1)
-	signal.Notify(sigCh, os.Interrupt)
-	sig := <-sigCh
-	logger.Println("Received terminate signal, shutting down:", sig)
+	stopCh := make(chan os.Signal, 1)
+	signal.Notify(stopCh, os.Interrupt, syscall.SIGTERM)
+	<-stopCh
+
+	logger.Println("Shutting down gRPC server...")
+	grpcServer.Stop()
 }
