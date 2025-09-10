@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+option go_package = "proto/stakeholders";
+
+service StakeholdersService {
+  rpc RegisterUser(RegistrationRequest) returns (AuthenticationResponse);
+  rpc LoginUser(LoginRequest) returns (AuthenticationResponse);
+  rpc GetAllUsers (GetAllUsersRequest) returns (GetAllUsersResponse);
+  rpc BlockUser (BlockUserRequest) returns (BlockUserResponse);
+  rpc UnblockUser (UnblockUserRequest) returns (UnblockUserResponse);
+}
+
+message RegistrationRequest {
+  string username = 1;
+  string password = 2;
+  string email    = 3;
+  string role     = 4;
+
+}
+
+message LoginRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message AuthenticationResponse {
+  string token = 1;
+  string message = 2;
+}
+
+message GetAllUsersRequest {}
+
+
+// Poruka koja predstavlja jednog korisnika
+message User {
+  string id       = 1;
+  string username = 2;
+  string email    = 3;
+  string role     = 4;
+  bool isBlocked  = 5; // dodato polje da frontend zna da li je blokiran
+}
+
+// Odgovor sa listom korisnika
+message GetAllUsersResponse {
+  repeated User users = 1;
+}
+
+// Blokiranje korisnika
+message BlockUserRequest {
+  string id = 1; // id korisnika koji se blokira
+}
+message BlockUserResponse {
+  string message = 1;
+}
+
+// Deblokiranje korisnika
+message UnblockUserRequest {
+  string id = 1; // id korisnika koji se deblokira
+}
+message UnblockUserResponse {
+  string message = 1;
+}
