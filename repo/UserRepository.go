@@ -108,7 +108,11 @@ func (repo *UserRepository) GetAllUsers(ctx context.Context) ([]*model.User, err
 	defer session.Close(ctx)
 
 	res, err := session.ExecuteRead(ctx, func(tx neo4j.ManagedTransaction) (any, error) {
-		result, err := tx.Run(ctx, "MATCH (u:User) RETURN u.id, u.username, u.email, u.role,u.isBlocked", nil)
+		result, err := tx.Run(ctx, `
+            MATCH (u:User)
+            WHERE u.role <> 'admin'
+            RETURN u.id, u.username, u.email, u.role, u.isBlocked
+        `, nil)
 		if err != nil {
 			return nil, err
 		}
@@ -170,4 +174,3 @@ func (repo *UserRepository) SetUserBlocked(ctx context.Context, userID string, b
 	return nil
 
 }
-
