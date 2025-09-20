@@ -71,3 +71,30 @@ func (s *UserService) UnblockUser(userID string) error {
 	return s.UserRepo.SetUserBlocked(ctx, userID, false)
 }
 
+func (s *UserService) GetUserProfile(username string) (*model.User, error) {
+	ctx := context.Background()
+	return s.UserRepo.FindByUsername(ctx, username)
+}
+
+func (s *UserService) UpdateUserProfile(username string, updatedUser *model.User) error {
+	ctx := context.Background()
+	
+	currentUser, err := s.UserRepo.FindByUsername(ctx, username)
+	if err != nil {
+		return errors.New("user not found")
+	}
+	
+	currentUser.FirstName = updatedUser.FirstName
+	currentUser.LastName = updatedUser.LastName
+	currentUser.ProfileImage = updatedUser.ProfileImage
+	currentUser.Biography = updatedUser.Biography
+	currentUser.Motto = updatedUser.Motto
+	
+	return s.UserRepo.UpdateUserProfile(ctx, currentUser)
+}
+
+// Upload ili promena profilne slike
+func (s *UserService) UploadProfileImage(username string, imageUrl string) error {
+	ctx := context.Background()
+	return s.UserRepo.UpdateProfileImage(ctx, username, imageUrl)
+}

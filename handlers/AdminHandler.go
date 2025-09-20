@@ -16,13 +16,13 @@ func (h *UserHandler) GetAllUsers(ctx context.Context, req *pb.GetAllUsersReques
 	}
 
 	var pbUsers []*pb.User
-	for _, u := range users {
+	for _, user := range users {
 		pbUsers = append(pbUsers, &pb.User{
-			Id:        u.ID.String(),
-			Username:  u.Username,
-			Email:     u.Email,
-			Role:      u.Role,
-			IsBlocked: u.IsBlocked,
+			Id:           user.ID.String(),
+			Username:     user.Username,
+			Email:        user.Email,
+			Role:         user.Role,
+			IsBlocked:    user.IsBlocked,
 		})
 	}
 
