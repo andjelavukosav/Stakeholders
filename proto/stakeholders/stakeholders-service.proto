@@ -8,6 +8,10 @@ service StakeholdersService {
   rpc GetAllUsers (GetAllUsersRequest) returns (GetAllUsersResponse);
   rpc BlockUser (BlockUserRequest) returns (BlockUserResponse);
   rpc UnblockUser (UnblockUserRequest) returns (UnblockUserResponse);
+  rpc GetUserProfile(GetProfileRequest) returns (UserProfileResponse);
+  rpc UpdateUserProfile(UpdateProfileRequest) returns (UpdateProfileResponse);
+  rpc UploadProfileImage(UploadProfileImageRequest) returns (UploadProfileImageResponse);
+
 }
 
 message RegistrationRequest {
@@ -33,11 +37,16 @@ message GetAllUsersRequest {}
 
 // Poruka koja predstavlja jednog korisnika
 message User {
-  string id       = 1;
-  string username = 2;
-  string email    = 3;
-  string role     = 4;
-  bool isBlocked  = 5; // dodato polje da frontend zna da li je blokiran
+  string id           = 1;
+  string username     = 2;
+  string email        = 3;
+  string role         = 4;
+  bool isBlocked      = 5;
+  string firstName    = 6;
+  string lastName     = 7;
+  string profileImage = 8;
+  string biography    = 9;
+  string motto        = 10;
 }
 
 // Odgovor sa listom korisnika
@@ -59,4 +68,45 @@ message UnblockUserRequest {
 }
 message UnblockUserResponse {
   string message = 1;
+}
+
+message GetProfileRequest {
+  string username = 1;
+}
+
+message UserProfileResponse {
+  string id = 1;
+  string username = 2;
+  string email = 3;
+  string role = 4;
+  string firstName = 5;
+  string lastName = 6;
+  string profileImage = 7;
+  string biography = 8;
+  string motto = 9;
+}
+
+message UpdateProfileRequest {
+  string username = 1;
+  string firstName = 2;
+  string lastName = 3;
+  string profileImage = 4;
+  string biography = 5;
+  string motto = 6;
+}
+
+message UpdateProfileResponse {
+  string message = 1;
+  bool success = 2;
+}
+
+message UploadProfileImageRequest {
+  string username = 1;
+  string image_path = 2; // path do slike koju je vratio ImageService
+}
+
+message UploadProfileImageResponse {
+  bool success = 1;
+  string message = 2;
+  string image_url = 3;
 }

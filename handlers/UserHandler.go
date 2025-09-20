@@ -53,3 +53,65 @@ func (h *UserHandler) LoginUser(ctx context.Context, req *pb.LoginRequest) (*pb.
 
 	return &pb.AuthenticationResponse{Token: token}, nil
 }
+
+func (h *UserHandler) GetUserProfile(ctx context.Context, req *pb.GetProfileRequest) (*pb.UserProfileResponse, error) {
+	user, err := h.UserService.GetUserProfile(req.Username)
+	if err != nil {
+		return nil, status.Errorf(codes.NotFound, "user not found: %v", err)
+	}
+
+	return &pb.UserProfileResponse{
+		Id:           user.ID.String(),
+		Username:     user.Username,
+		Email:        user.Email,
+		Role:         user.Role,
+		FirstName:    user.FirstName,
+		LastName:     user.LastName,
+		ProfileImage: user.ProfileImage,
+		Biography:    user.Biography,
+		Motto:        user.Motto,
+	}, nil
+}
+
+func (h *UserHandler) UpdateUserProfile(ctx context.Context, req *pb.UpdateProfileRequest) (*pb.UpdateProfileResponse, error) {
+	updatedUser := &model.User{
+		Username:     req.Username,
+		FirstName:    req.FirstName,
+		LastName:     req.LastName,
+		ProfileImage: req.ProfileImage,
+		Biography:    req.Biography,
+		Motto:        req.Motto,
+	}
+
+	err := h.UserService.UpdateUserProfile(req.Username, updatedUser)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to update profile: %v", err)
+	}
+
+	return &pb.UpdateProfileResponse{
+		Message: "Profile updated successfully",
+		Success: true,
+	}, nil
+}
+
+func (h *UserHandler) UploadProfileImage(ctx context.Context, req *pb.UploadProfileImageRequest) (*pb.UploadProfileImageResponse, error) {
+    // validacija
+    if req.Username == "" || req.ImagePath == "" {
+        return nil, status.Errorf(codes.InvalidArgument, "username and image path are required")
+    }
+
+    // poziv servisa da upiše image url u bazu
+    err := h.UserService.UploadProfileImage(req.Username, req.ImagePath)
+    if err != nil {
+        return nil, status.Errorf(codes.Internal, "failed to update profile image: %v", err)
+    }
+
+    return &pb.UploadProfileImageResponse{
+        Success: true,
+        Message: "Profile image uploaded successfully",
+        ImageUrl: req.ImagePath,
+    }, nil
+}
+
+
+

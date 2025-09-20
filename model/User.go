@@ -11,8 +11,16 @@ type User struct {
 	Email     string    `json:"email"`
 	Role      string    `json:"role"` // vodič, turista, administrator
 	IsBlocked bool      `json:"isBlocked"`
+
+	// DODATA POLJA ZA PROFIL
+	FirstName    string    `json:"firstName"`
+	LastName     string    `json:"lastName"`
+	ProfileImage string    `json:"profileImage"` 
+	Biography    string    `json:"biography"`
+	Motto        string    `json:"motto"`
 }
 
 func (user *User) BeforeCreate() {
 	user.ID = uuid.New()
+
 }

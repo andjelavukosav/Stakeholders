@@ -40,14 +40,32 @@ func (repo *UserRepository) CreateUser(ctx context.Context, user *model.User) er
 
 	_, err := session.ExecuteWrite(ctx, func(tx neo4j.ManagedTransaction) (any, error) {
 		return tx.Run(ctx,
-			"CREATE (u:User {id:$id, username:$username, password:$password, email:$email, role:$role,  isBlocked: $isBlocked}) RETURN u",
+			`CREATE (u:User {
+				id: $id, 
+				username: $username, 
+				password: $password, 
+				email: $email, 
+				role: $role, 
+				isBlocked: $isBlocked,
+				firstName: $firstName,
+				lastName: $lastName,
+				profileImage: $profileImage,
+				biography: $biography,
+				motto: $motto
+			}) RETURN u`,
+
 			map[string]any{
-				"id":        user.ID.String(),
-				"username":  user.Username,
-				"password":  user.Password,
-				"email":     user.Email,
-				"role":      user.Role,
-				"isBlocked": false,
+				"id":           user.ID.String(),
+				"username":     user.Username,
+				"password":     user.Password,
+				"email":        user.Email,
+				"role":         user.Role,
+				"isBlocked":    user.IsBlocked,
+				"firstName":    user.FirstName,
+				"lastName":     user.LastName,
+				"profileImage": user.ProfileImage,
+				"biography":    user.Biography,
+				"motto":        user.Motto,
 			})
 	})
 	if err != nil {
@@ -63,7 +81,9 @@ func (repo *UserRepository) FindByUsername(ctx context.Context, username string)
 
 	res, err := session.ExecuteRead(ctx, func(tx neo4j.ManagedTransaction) (any, error) {
 		result, err := tx.Run(ctx,
-			"MATCH (u:User {username:$username}) RETURN u.id, u.username, u.password, u.email, u.role,u.isBlocked",
+			`MATCH (u:User {username:$username}) 
+			RETURN u.id, u.username, u.password, u.email, u.role, u.isBlocked,
+				   u.firstName, u.lastName, u.profileImage, u.biography, u.motto`,
 			map[string]any{"username": username})
 		if err != nil {
 			return nil, err
@@ -72,17 +92,21 @@ func (repo *UserRepository) FindByUsername(ctx context.Context, username string)
 		if result.Next(ctx) {
 			record := result.Record()
 			return &model.User{
-				ID:        uuid.MustParse(record.Values[0].(string)),
-				Username:  record.Values[1].(string),
-				Password:  record.Values[2].(string),
-				Email:     record.Values[3].(string),
-				Role:      record.Values[4].(string),
-				IsBlocked: record.Values[5].(bool),
+				ID:           uuid.MustParse(record.Values[0].(string)),
+				Username:     record.Values[1].(string),
+				Password:     record.Values[2].(string),
+				Email:        record.Values[3].(string),
+				Role:         record.Values[4].(string),
+				IsBlocked:    record.Values[5].(bool),
+				FirstName:    record.Values[6].(string),
+				LastName:     record.Values[7].(string),
+				ProfileImage: record.Values[8].(string),
+				Biography:    record.Values[9].(string),
+				Motto:        record.Values[10].(string),
 			}, nil
 		}
 
-		// Ako ne postoji user
-		return nil, errors.New("user not found")
+		return nil, errors.New("User not found")
 	})
 	if err != nil {
 		return nil, err
@@ -90,7 +114,7 @@ func (repo *UserRepository) FindByUsername(ctx context.Context, username string)
 
 	user, ok := res.(*model.User)
 	if !ok || user == nil {
-		return nil, errors.New("user not found")
+		return nil, errors.New("User not found")
 	}
 
 	return user, nil
@@ -111,7 +135,8 @@ func (repo *UserRepository) GetAllUsers(ctx context.Context) ([]*model.User, err
 		result, err := tx.Run(ctx, `
             MATCH (u:User)
             WHERE u.role <> 'admin'
-            RETURN u.id, u.username, u.email, u.role, u.isBlocked
+            RETURN u.id, u.username, u.email, u.role, u.isBlocked,
+                   u.firstName, u.lastName, u.profileImage, u.biography, u.motto
         `, nil)
 		if err != nil {
 			return nil, err
@@ -121,12 +146,17 @@ func (repo *UserRepository) GetAllUsers(ctx context.Context) ([]*model.User, err
 		for result.Next(ctx) {
 			record := result.Record()
 			users = append(users, &model.User{
-				ID:        uuid.MustParse(record.Values[0].(string)),
-				Username:  record.Values[1].(string),
-				Email:     record.Values[2].(string),
-				Role:      record.Values[3].(string),
-				IsBlocked: record.Values[4].(bool),
-				Password:  "",
+				ID:           uuid.MustParse(record.Values[0].(string)),
+				Username:     record.Values[1].(string),
+				Email:        record.Values[2].(string),
+				Role:         record.Values[3].(string),
+				IsBlocked:    record.Values[4].(bool),
+				FirstName:    record.Values[5].(string),
+				LastName:     record.Values[6].(string),
+				ProfileImage: record.Values[7].(string),
+				Biography:    record.Values[8].(string),
+				Motto:        record.Values[9].(string),
+				Password:     "", 
 			})
 		}
 
@@ -174,3 +204,53 @@ func (repo *UserRepository) SetUserBlocked(ctx context.Context, userID string, b
 	return nil
 
 }
+
+func (repo *UserRepository) UpdateUserProfile(ctx context.Context, user *model.User) error {
+	session := repo.driver.NewSession(ctx, neo4j.SessionConfig{DatabaseName: "neo4j"})
+	defer session.Close(ctx)
+
+	_, err := session.ExecuteWrite(ctx, func(tx neo4j.ManagedTransaction) (any, error) {
+		_, err := tx.Run(ctx,
+			`MATCH (u:User {username:$username})
+			 SET u.firstName = $firstName,
+			     u.lastName = $lastName,
+			     u.profileImage = $profileImage,
+			     u.biography = $biography,
+			     u.motto = $motto
+			 RETURN u`,
+			map[string]any{
+				"username":     user.Username,
+				"firstName":    user.FirstName,
+				"lastName":     user.LastName,
+				"profileImage": user.ProfileImage,
+				"biography":    user.Biography,
+				"motto":        user.Motto,
+			})
+		return nil, err
+	})
+	
+	if err != nil {
+		repo.logger.Println("Error updating user profile:", err)
+		return err
+	}
+	return nil
+}
+
+func (repo *UserRepository) UpdateProfileImage(ctx context.Context, username string, imageUrl string) error {
+	session := repo.driver.NewSession(ctx, neo4j.SessionConfig{DatabaseName: "neo4j"})
+	defer session.Close(ctx)
+
+	_, err := session.ExecuteWrite(ctx, func(tx neo4j.ManagedTransaction) (any, error) {
+		_, err := tx.Run(ctx,
+			`MATCH (u:User {username:$username})
+			 SET u.profileImage = $profileImage
+			 RETURN u`,
+			map[string]any{
+				"username":     username,
+				"profileImage": imageUrl,
+			})
+		return nil, err
+	})
+	return err
+}
+

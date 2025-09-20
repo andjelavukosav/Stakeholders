@@ -4,6 +4,7 @@ import (
 	"context"
 	"database-example/handlers"
 	stakeholderspb "database-example/proto/stakeholders"
+	imagepb "database-example/proto/image"
 	"database-example/repo"
 	"database-example/service"
 	"log"
@@ -11,7 +12,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -28,6 +28,17 @@ func main() {
 	userService := &service.UserService{UserRepo: userRepo}
 	userHandler := handlers.NewUserHandler(userService)
 
+	// --- Folder za upload slika ---
+	uploadDir := "./uploads"
+	if _, err := os.Stat(uploadDir); os.IsNotExist(err) {
+		if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
+			logger.Fatal("Failed to create uploads directory:", err)
+		}
+	}
+
+	// Kreiranje ImageHandlera
+	stakeholdersImageHandler := handlers.NewImageHandler(uploadDir)
+
 	addr := os.Getenv("STAKEHOLDERS_SERVICE_ADDRESS")
 	if addr == "" {
 		addr = ":8000"
@@ -40,7 +51,10 @@ func main() {
 
 	grpcServer := grpc.NewServer()
 	stakeholderspb.RegisterStakeholdersServiceServer(grpcServer, userHandler)
+	imagepb.RegisterImageServiceServer(grpcServer, stakeholdersImageHandler)
 	reflection.Register(grpcServer)
+
+
 
 	go func() {
 		logger.Println("Starting gRPC server on", addr)
